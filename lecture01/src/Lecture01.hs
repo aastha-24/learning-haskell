@@ -12,14 +12,16 @@ module Lecture01 where
 --    (Will create a channel where we can have descussions on these questions)
 -- 4. Don't search for solutions on Google.
 
+-- Done
 -- Problem 1
 -- (*) Find the last element of a list.
 -- λ> problem1 ['x','y','z']
 -- 'z'
 problem1 :: [a] -> a
-problem1 = undefined
+problem1 [a] = a
+problem1 (x:xs) = problem1 xs
 
-
+-- Done
 -- Problem 2
 -- (*) Find the last but one element of a list.
 -- λ> problem2 [1,2,3,4]
@@ -27,9 +29,11 @@ problem1 = undefined
 -- λ> problem2 ['a'..'z']
 -- 'y'
 problem2 :: [a] -> a
-problem2 = undefined
+problem2 [a,b] = a
+problem2 (x:xs) = problem2 xs
 
 
+-- Done
 -- Problem 3
 -- (*) Find the K'th element of a list. The first element in the list is number 1.
 -- Example:
@@ -38,9 +42,13 @@ problem2 = undefined
 -- λ> problem3 "haskell" 5
 -- 'e'
 problem3 :: [a] -> Int -> a
-problem3 = undefined
+problem3 (x:xs) k | k > (problem4 (x:xs)), k < 1 = error "Invalid"
+problem3 [] k = error "Empty List"
+problem3 (x:xs) 1 = x
+problem3 (x:xs) k = problem3 xs (k-1)
 
 
+-- Done
 -- Problem 4
 -- (*) Find the number of elements of a list.
 -- Example
@@ -49,9 +57,11 @@ problem3 = undefined
 -- λ> problem4 "Hello, world!"
 -- 13
 problem4 :: [a] -> Int
-problem4 = undefined
+problem4 [] = 0
+problem4 (x:xs) = 1 + problem4 xs
 
 
+-- Done
 -- Problem 5
 -- (*) Reverse a list.
 -- Example
@@ -60,9 +70,11 @@ problem4 = undefined
 -- λ> problem5 [1,2,3,4]
 -- [4,3,2,1]
 problem5 :: [a] -> [a]
-problem5 = undefined
+problem5 [a] = [a]
+problem5 (x:xs) = problem5 xs ++ [x]
 
 
+-- Done
 -- Problem 6
 -- (*) Find out whether a list is a palindrome. A palindrome can be read forward or
 --     backward; e.g. (x a m a x).
@@ -74,9 +86,10 @@ problem5 = undefined
 -- λ> problem6 [1,2,4,8,16,8,4,2,1]
 -- True
 problem6 :: Eq a => [a] -> Bool
-problem6 = undefined
+problem6 (x:xs) = (x:xs) == problem5 (x:xs)
 
 
+-- Done
 -- Problem 7
 -- (**) Flatten a nested list structure.
 --      Transform a list, possibly holding lists as elements into a `flat' list by
@@ -95,9 +108,12 @@ data NestedList a
 -- []
 
 problem7 :: NestedList a -> [a]
-problem7 = undefined
+problem7 (Elem a) = [a]
+problem7 (List []) = []
+problem7 (List(x:xs)) = problem7 x ++ problem7  (List xs)
 
 
+-- Done
 -- Problem 8
 -- (**) Eliminate consecutive duplicates of list elements.
 --      If a list contains repeated elements they should be replaced with a single copy
@@ -106,9 +122,13 @@ problem7 = undefined
 -- λ> problem8 "aaaabccaadeeee"
 -- "abcade"
 problem8 :: Eq a => [a] -> [a]
-problem8 = undefined
+problem8 [] = []
+problem8 [a] = [a]
+problem8 (x:xs) | x == head xs = problem8 xs
+problem8 (x:xs) | x /= head xs = [x] ++ problem8 xs
 
 
+-- Done
 -- Problem 9
 -- (**) Pack consecutive duplicates of list elements into sublists. If a list contains
 --      repeated elements they should be placed in separate sublists.
@@ -116,9 +136,20 @@ problem8 = undefined
 -- λ> problem9 ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']
 -- ["aaaa","b","cc","aa","d","eeee"]
 problem9 :: Eq a => [a] -> [[a]]
-problem9 = undefined
+problem9 [] = []
+problem9 [a] = [[a]]
+problem9 (x:xs) = [replicate repeatCount x] ++ problem9 remaining
+  where (repeatCount,remaining) = splitList x xs
+
+splitList :: Eq a => a -> [a] -> (Int,[a])
+splitList a [] = (1, [])
+splitList a (x:xs) | a == x = (n+1,next) where (n,next) = splitList a xs
+splitList a (x:xs) | a /= x = (1,(x:xs))
 
 
+
+
+-- Done
 -- Problem 10
 -- (*) Run-length encoding of a list. Use the result of problem P09 to implement the
 --     so-called run-length encoding data compression method. Consecutive duplicates
@@ -128,9 +159,12 @@ problem9 = undefined
 -- λ> problem10 "aaaabccaadeeee"
 -- [(4,'a'),(1,'b'),(2,'c'),(2,'a'),(1,'d'),(4,'e')]
 problem10 :: Eq a => [a] -> [(Int, a)]
-problem10 = undefined
+problem10 [] = []
+problem10 (x:xs) = [(repeatCount,x)] ++ problem10 remaining
+  where (repeatCount,remaining) = splitList x xs
 
 
+-- Done
 -- Problem 11
 -- (*) Modified run-length encoding.
 --     Modify the result of problem 10 in such a way that if an element has no
@@ -152,9 +186,21 @@ data ListItem a
 
 -- Modified run-length encoding.
 problem11 :: Eq a => [a] -> [ListItem a]
-problem11 = undefined
+problem11 [] = []
+problem11 (x:xs) = transform1 (problem10 (x:xs))
+
+transform :: (Int ,a) -> ListItem a
+transform (1, a) = Single a
+transform (k, a) = Multiple k a
+
+transform1 :: [(Int, a)] -> [ListItem a]
+transform1 [] = []
+transform1 (x:xs) = [transform x]++ transform1 xs
 
 
+
+
+-- Done
 -- Problem 12
 -- Decode a run-length encoded list.
 -- (**) Decode a run-length encoded list.
@@ -165,9 +211,15 @@ problem11 = undefined
 -- λ> problem12 [Multiple 4 'a',Single 'b',Multiple 2 'c', Multiple 2 'a',Single 'd']
 -- "aaaabccaad"
 problem12 :: Eq a => [ListItem a] -> [a]
-problem12 = undefined
+problem12 [] = []
+problem12(x:xs) = transform2 x ++ problem12 xs
+
+transform2 :: ListItem a -> [a]
+transform2 (Single a) = [a]
+transform2 (Multiple k a) = replicate k a
 
 
+-- Done
 -- Problem 13
 -- (**) Run-length encoding of a list (direct solution).
 --      Implement the so-called run-length encoding data compression method directly. I.e.
@@ -179,9 +231,14 @@ problem12 = undefined
 -- λ> problem13 "aaaabccaadeeee"
 -- [Multiple 4 'a',Single 'b',Multiple 2 'c', Multiple 2 'a',Single 'd',Multiple 4 'e']
 problem13 :: Eq a => [a] -> [ListItem a]
-problem13 = undefined
+problem13 [] = []
+problem13 (x:xs) = [transform (repeatCount, x)] ++ problem13 remaining
+  where (repeatCount,remaining) = splitList x xs
 
 
+
+
+-- Done
 -- Problem 14
 -- (*) Duplicate the elements of a list.
 --
@@ -189,9 +246,11 @@ problem13 = undefined
 -- λ> problem14 [1, 2, 3]
 -- [1,1,2,2,3,3]
 problem14 :: [a] -> [a]
-problem14 = undefined
+problem14 [] = []
+problem14 (x:xs) = [x] ++ [x] ++ problem14 xs
 
 
+-- Done
 -- Problem 15
 -- (**) Replicate the elements of a list a given number of times.
 --
@@ -199,9 +258,10 @@ problem14 = undefined
 -- λ> problem15 "abc" 3
 -- "aaabbbccc"
 problem15 :: [a] -> Int -> [a]
-problem15 = undefined
+problem15 [] k = []
+problem15 (x:xs) k = replicate k x ++ problem15 xs k
 
-
+-- Done
 -- Problem 16
 -- (**) Drop every N'th element from a list.
 --
@@ -209,9 +269,11 @@ problem15 = undefined
 -- λ> problem16 "abcdefghik" 3
 -- "abdeghk"
 problem16 :: [a] -> Int -> [a]
-problem16 = undefined
+problem16 [] k = []
+problem16 (x:xs) k = take (k-1) (x:xs) ++ problem16 (drop (k-1) xs) k
 
 
+-- Done
 -- Problem 17
 -- (*) Split a list into two parts; the length of the first part is given.
 --     Do not use any predefined predicates.
@@ -220,9 +282,13 @@ problem16 = undefined
 -- λ> problem17 "abcdefghik" 3
 -- ("abc", "defghik")
 problem17 :: [a] -> Int -> ([a], [a])
-problem17 = undefined
+problem17 [] k = ([], [])
+problem17 (x:xs) 1 = ([x],xs)
+problem17 (x:xs) k =  ([x] ++ prev , remaining) where (prev,remaining) = problem17 xs (k-1)
 
 
+
+-- Done
 -- Problem 18
 -- (**) Extract a slice from a list.
 --      Given two indices, i and k, the slice is the list containing the elements
@@ -233,9 +299,13 @@ problem17 = undefined
 -- λ> problem18 ['a','b','c','d','e','f','g','h','i','k'] 3 7
 -- "cdefg"
 problem18 :: [a] -> Int -> Int -> [a]
-problem18 = undefined
+problem [] i j = []
+problem18 (x:xs) 1 1 = [x]
+problem18 (x:xs) i j | i > 1, j > 1 = problem18 xs (i-1) (j-1)
+problem18 (x:xs) i j | j > 1 = [x] ++ problem18 xs i (j-1)
 
 
+-- Done
 -- Problem 19
 -- (**) Rotate a list N places to the left.
 --
@@ -247,9 +317,12 @@ problem18 = undefined
 -- λ> problem19 ['a','b','c','d','e','f','g','h'] (-2)
 -- "ghabcdef"
 problem19 :: [a] -> Int -> [a]
-problem19 = undefined
+problem19 (x:xs) 0 = (x:xs)
+problem19 (x:xs) k | k > 0 = problem19 (xs ++ [x]) (k-1)
+problem19 (x:xs) k | k < 0 = problem19 (xs ++ [x]) (length (x:xs) + k - 1)
 
 
+-- Done
 -- Problem 20
 -- (*) Remove the K'th element from a list.
 --
@@ -257,9 +330,11 @@ problem19 = undefined
 -- λ> problem20 2 "abcd"
 -- ('b',"acd")
 problem20 :: Int -> [a] -> (a, [a])
-problem20 = undefined
+problem20 1 (x:xs) = (x, xs)
+problem20 k (x:xs) =  (prev , [x] ++ remaining) where (prev,remaining) = problem20 (k-1) xs
 
 
+-- Done
 -- Problem A
 -- (*) Implement merge:
 --     Given two sorted lists give out a sorted list
@@ -267,9 +342,18 @@ problem20 = undefined
 -- λ> problemA [1,3,4] [2,5,6]
 -- [1,2,3,4,5,6]
 problemA :: Ord a => [a] -> [a] -> [a]
-problemA = undefined
+problemA [] [] = []
+problemA [] (x:xs) = (x:xs)
+problemA (x:xs) [] = (x:xs)
+problemA (x:xs) (y:ys) | x > y = [y] ++  problemA (x:xs) ys
+problemA (x:xs) (y:ys) | x < y = [x] ++  problemA xs (y:ys)
 
 
+halflength :: [a] -> Int
+halflength (x:xs) | length (x:xs) `mod` 2 == 0 = (length (x:xs)) `div` 2
+                  | otherwise = (length (x:xs) + 1) `div` 2
+
+-- Done
 -- Problem B
 -- (*) Implement merge-sort
 --     Given a list returna  sorted list using merge sort algorithm you can use the merge
@@ -278,4 +362,9 @@ problemA = undefined
 -- λ> problemB [4,3,2,1]
 -- [1,2,3,4]
 problemB :: Ord a => [a] -> [a]
-problemB = undefined
+problemB [] = []
+problemB [a] = [a]
+problemB (x:xs) = problemA (problemB firstHalf) (problemB secondHalf)
+  where firstHalf = take half (x:xs)
+        secondHalf = drop half (x:xs)
+        half = length (x:xs) `div` 2

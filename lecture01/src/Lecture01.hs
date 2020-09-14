@@ -345,11 +345,12 @@ problemA :: Ord a => [a] -> [a] -> [a]
 problemA [] [] = []
 problemA [] (x:xs) = (x:xs)
 problemA (x:xs) [] = (x:xs)
-problemA (x:xs) (y:ys) | x > y = [y] ++  problemA (x:xs) ys
+problemA (x:xs) (y:ys) | x >= y = [y] ++  problemA (x:xs) ys
 problemA (x:xs) (y:ys) | x < y = [x] ++  problemA xs (y:ys)
 
 
 halflength :: [a] -> Int
+halflength [] = 0
 halflength (x:xs) | length (x:xs) `mod` 2 == 0 = (length (x:xs)) `div` 2
                   | otherwise = (length (x:xs) + 1) `div` 2
 
@@ -365,6 +366,4 @@ problemB :: Ord a => [a] -> [a]
 problemB [] = []
 problemB [a] = [a]
 problemB (x:xs) = problemA (problemB firstHalf) (problemB secondHalf)
-  where firstHalf = take half (x:xs)
-        secondHalf = drop half (x:xs)
-        half = length (x:xs) `div` 2
+  where (firstHalf,secondHalf) = problem17 (x:xs) (halflength (x:xs))
